@@ -22,6 +22,9 @@ inputs:
     required: true
     description: 'Where to download the BDS resources to'
     default: './bds'
+outputs:
+  DOWNLOAD_PATH: 
+    description: 'The path of where the BDS server will be unpacked to'
 runs:
   using: 'node16'
   main: 'dist/index.js'
