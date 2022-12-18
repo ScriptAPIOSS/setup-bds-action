@@ -1,8 +1,10 @@
 import * as core from '@actions/core'
 import * as tc from '@actions/tool-cache'
 import * as http from '@actions/http-client'
-import {VersionsJson} from './versions'
-import {VersionManifest} from './version-manifest'
+
+import {VersionsJson} from './types/versions'
+import {VersionManifest} from './types/version-manifest'
+import {BDS_CHANNEL, BDS_VERSION, DOWNLOAD_PATH, EULA_ACCEPT, PP_ACCEPT} from './types/inputs'
 
 const VERSIONS_URL =
   'https://raw.githubusercontent.com/Bedrock-OSS/BDS-Versions/main/versions.json'
@@ -18,8 +20,7 @@ async function run(): Promise<void> {
       }
     }
 
-    const EULA_ACCEPT: string = core.getInput('EULA_ACCEPT')
-    const PP_ACCEPT: string = core.getInput('PP_ACCEPT')
+
 
     if (EULA_ACCEPT !== 'true') {
       throw new Error(`Accept the EULA before continuing`)
@@ -29,14 +30,13 @@ async function run(): Promise<void> {
       throw new Error(`Accept the Privacy Policy before continuing`)
     }
 
-    let BDS_VERSION: string = core.getInput('BDS_VERSION')
-    const BDS_CHANNEL: string = core.getInput('BDS_CHANNEL')
+    let MOD_BDS_VERSION = BDS_VERSION;
 
     if (BDS_VERSION === undefined || BDS_VERSION === '') {
-      BDS_VERSION = 'latest'
+      MOD_BDS_VERSION = 'latest'
     }
 
-    const USE_LATEST = BDS_VERSION === 'latest'
+    const USE_LATEST = MOD_BDS_VERSION === 'latest'
     const USE_PREVIEW = BDS_CHANNEL === 'preview'
 
     if (USE_LATEST) {
@@ -73,7 +73,7 @@ async function run(): Promise<void> {
     const version_response_body: string = await versions_response.readBody()
     const versions: VersionsJson = JSON.parse(version_response_body)
 
-    let target_version = BDS_VERSION
+    let target_version = MOD_BDS_VERSION
 
     // Sanity check version exists
     if (USE_LATEST) {
@@ -128,7 +128,7 @@ async function run(): Promise<void> {
     )
 
     const bds_zip = await tc.downloadTool(versions_manifest.download_url)
-    const bdsExtractedPath = await tc.extractZip(bds_zip, './bds')
+    const bdsExtractedPath = await tc.extractZip(bds_zip, DOWNLOAD_PATH)
 
     const bdsCachedPath = await tc.cacheDir(
       bdsExtractedPath,
@@ -137,7 +137,7 @@ async function run(): Promise<void> {
     )
     core.addPath(bdsCachedPath)
 
-    core.summary.addHeading('Test summary')
+    core.setOutput('DOWNLOAD_PATH', DOWNLOAD_PATH)
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }

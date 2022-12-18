@@ -18,6 +18,10 @@ inputs:
     required: true
     description: 'The channel to download BDS from, `stable/preview`'
     default: 'preview'
+  DOWNLOAD_PATH:
+    required: true
+    description: 'Where to download the BDS resources to'
+    default: './bds'
 runs:
   using: 'node16'
   main: 'dist/index.js'

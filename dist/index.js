@@ -42,6 +42,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const tc = __importStar(__nccwpck_require__(7784));
 const http = __importStar(__nccwpck_require__(6255));
+const inputs_1 = __nccwpck_require__(8766);
 const VERSIONS_URL = 'https://raw.githubusercontent.com/Bedrock-OSS/BDS-Versions/main/versions.json';
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -54,26 +55,23 @@ function run() {
                     throw new Error('Unsupported platform: ${process.platform}');
                 }
             }
-            const EULA_ACCEPT = core.getInput('EULA_ACCEPT');
-            const PP_ACCEPT = core.getInput('PP_ACCEPT');
-            if (EULA_ACCEPT !== 'true') {
+            if (inputs_1.EULA_ACCEPT !== 'true') {
                 throw new Error(`Accept the EULA before continuing`);
             }
-            if (PP_ACCEPT !== 'true') {
+            if (inputs_1.PP_ACCEPT !== 'true') {
                 throw new Error(`Accept the Privacy Policy before continuing`);
             }
-            let BDS_VERSION = core.getInput('BDS_VERSION');
-            const BDS_CHANNEL = core.getInput('BDS_CHANNEL');
-            if (BDS_VERSION === undefined || BDS_VERSION === '') {
-                BDS_VERSION = 'latest';
+            let MOD_BDS_VERSION = inputs_1.BDS_VERSION;
+            if (inputs_1.BDS_VERSION === undefined || inputs_1.BDS_VERSION === '') {
+                MOD_BDS_VERSION = 'latest';
             }
-            const USE_LATEST = BDS_VERSION === 'latest';
-            const USE_PREVIEW = BDS_CHANNEL === 'preview';
+            const USE_LATEST = MOD_BDS_VERSION === 'latest';
+            const USE_PREVIEW = inputs_1.BDS_CHANNEL === 'preview';
             if (USE_LATEST) {
                 core.debug('Using latest');
             }
             // Validate channel
-            switch (BDS_CHANNEL) {
+            switch (inputs_1.BDS_CHANNEL) {
                 case 'stable': {
                     break;
                 }
@@ -81,7 +79,7 @@ function run() {
                     break;
                 }
                 default: {
-                    throw new Error(`Invalid BDS_CHANNEL: ${BDS_CHANNEL}`);
+                    throw new Error(`Invalid BDS_CHANNEL: ${inputs_1.BDS_CHANNEL}`);
                 }
             }
             const _http = new http.HttpClient('http-client-tests');
@@ -92,7 +90,7 @@ function run() {
             }
             const version_response_body = yield versions_response.readBody();
             const versions = JSON.parse(version_response_body);
-            let target_version = BDS_VERSION;
+            let target_version = MOD_BDS_VERSION;
             // Sanity check version exists
             if (USE_LATEST) {
                 if (USE_PREVIEW) {
@@ -105,16 +103,16 @@ function run() {
             else {
                 if (USE_PREVIEW) {
                     if (!versions.linux.preview_versions.includes(target_version)) {
-                        throw new Error(`Unknown version for channel: ${target_version} [${BDS_CHANNEL}]`);
+                        throw new Error(`Unknown version for channel: ${target_version} [${inputs_1.BDS_CHANNEL}]`);
                     }
                 }
                 else {
                     if (!versions.linux.versions.includes(target_version)) {
-                        throw new Error(`Unknown version for channel: ${target_version} [${BDS_CHANNEL}]`);
+                        throw new Error(`Unknown version for channel: ${target_version} [${inputs_1.BDS_CHANNEL}]`);
                     }
                 }
             }
-            core.debug(`Downloading bds version ${target_version} on channel ${BDS_CHANNEL}`);
+            core.debug(`Downloading bds version ${target_version} on channel ${inputs_1.BDS_CHANNEL}`);
             let version_url = 'https://raw.githubusercontent.com/Bedrock-OSS/BDS-Versions/main/linux';
             if (USE_PREVIEW) {
                 version_url += '_preview';
@@ -127,10 +125,10 @@ function run() {
             const version_manifest_response_body = yield version_manifest_response.readBody();
             const versions_manifest = JSON.parse(version_manifest_response_body);
             const bds_zip = yield tc.downloadTool(versions_manifest.download_url);
-            const bdsExtractedPath = yield tc.extractZip(bds_zip, './bds');
+            const bdsExtractedPath = yield tc.extractZip(bds_zip, inputs_1.DOWNLOAD_PATH);
             const bdsCachedPath = yield tc.cacheDir(bdsExtractedPath, 'bds', target_version);
             core.addPath(bdsCachedPath);
-            core.summary.addHeading('Test summary');
+            core.setOutput('DOWNLOAD_PATH', inputs_1.DOWNLOAD_PATH);
         }
         catch (error) {
             if (error instanceof Error)
@@ -139,6 +137,46 @@ function run() {
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 8766:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DOWNLOAD_PATH = exports.BDS_CHANNEL = exports.BDS_VERSION = exports.PP_ACCEPT = exports.EULA_ACCEPT = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+exports.EULA_ACCEPT = core.getInput('EULA_ACCEPT');
+exports.PP_ACCEPT = core.getInput('PP_ACCEPT');
+exports.BDS_VERSION = core.getInput('BDS_VERSION');
+exports.BDS_CHANNEL = core.getInput('BDS_CHANNEL');
+exports.DOWNLOAD_PATH = core.getInput('DOWNLOAD_PATH', { required: true });
 
 
 /***/ }),
