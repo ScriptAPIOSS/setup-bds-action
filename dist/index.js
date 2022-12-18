@@ -176,7 +176,7 @@ exports.EULA_ACCEPT = core.getInput('EULA_ACCEPT');
 exports.PP_ACCEPT = core.getInput('PP_ACCEPT');
 exports.BDS_VERSION = core.getInput('BDS_VERSION');
 exports.BDS_CHANNEL = core.getInput('BDS_CHANNEL');
-exports.DOWNLOAD_PATH = core.getInput('DOWNLOAD_PATH', { required: true });
+exports.DOWNLOAD_PATH = core.getInput('DOWNLOAD_PATH');
 
 
 /***/ }),
