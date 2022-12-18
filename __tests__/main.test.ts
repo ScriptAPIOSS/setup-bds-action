@@ -14,6 +14,8 @@ test('test runs', () => {
   }
   // end of local dev stuff
 
+  process.env['INPUT_DOWNLOAD_PATH'] = './bds'
+
   process.env['INPUT_BDS_VERSION'] = '1.19.50.25'
   process.env['INPUT_BDS_CHANNEL'] = 'preview'
 
