@@ -4,7 +4,13 @@ import * as http from '@actions/http-client'
 
 import {VersionsJson} from './types/versions'
 import {VersionManifest} from './types/version-manifest'
-import {BDS_CHANNEL, BDS_VERSION, DOWNLOAD_PATH, EULA_ACCEPT, PP_ACCEPT} from './types/inputs'
+import {
+  BDS_CHANNEL,
+  BDS_VERSION,
+  DOWNLOAD_PATH,
+  EULA_ACCEPT,
+  PP_ACCEPT
+} from './types/inputs'
 
 const VERSIONS_URL =
   'https://raw.githubusercontent.com/Bedrock-OSS/BDS-Versions/main/versions.json'
@@ -20,8 +26,6 @@ async function run(): Promise<void> {
       }
     }
 
-
-
     if (EULA_ACCEPT !== 'true') {
       throw new Error(`Accept the EULA before continuing`)
     }
@@ -30,7 +34,7 @@ async function run(): Promise<void> {
       throw new Error(`Accept the Privacy Policy before continuing`)
     }
 
-    let MOD_BDS_VERSION = BDS_VERSION;
+    let MOD_BDS_VERSION = BDS_VERSION
 
     if (BDS_VERSION === undefined || BDS_VERSION === '') {
       MOD_BDS_VERSION = 'latest'
